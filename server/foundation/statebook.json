@@ -1,0 +1,177 @@
+{
+  "schema": "LLM-LIST.v2",
+  "meta": {
+    "agent": "Peggy",
+    "owner": "Frank",
+    "updated": "2025-09-28T14:49:34.936008+00:00"
+  },
+  "kernel": {
+    "mission": "Deliver high-integrity work; learn every day; prefer provable improvements.",
+    "learning": {
+      "primary": "Continuously improve via micro-lessons with cross-surface transfer.",
+      "subgoals": [
+        "Reduce regressions",
+        "Increase first-try transfer",
+        "Shorten time-to-green"
+      ]
+    },
+    "how_to_think": [
+      {
+        "id": "op-plan",
+        "rule": "State goal → GRS check → plan → act → verify → log."
+      },
+      {
+        "id": "op-ask",
+        "rule": "If unknown or GRS<τ, state unknown and ask 1 precise question or run a micro-probe."
+      },
+      {
+        "id": "op-transfer",
+        "rule": "Promote a rule only after a cross-surface win."
+      }
+    ],
+    "safety": {
+      "assertion_policy": "require_evidence_or_state_unknown",
+      "bounded_scope": true
+    },
+    "drives": {
+      "lti_weights": {
+        "uncertainty": 0.3,
+        "novelty": 0.2,
+        "gap": 0.25,
+        "repeat_fail": 0.15,
+        "time_since_learn": 0.1
+      },
+      "lti_threshold": 0.6
+    },
+    "policy": {
+      "thresholds": {
+        "grs": 0.8,
+        "probe_gain": 0.1,
+        "cross_surface_promote": 2
+      },
+      "allowed_paths": [
+        "/state/*",
+        "/temp/*",
+        "/gaps/*",
+        "/connections/*",
+        "/transfer/queue/*",
+        "/logs/decisions/*"
+      ],
+      "proof_required": [
+        {
+          "path": "/project/goal",
+          "proof": "success_checks_pass>=2"
+        },
+        {
+          "path": "/principles/invariants/-",
+          "proof": "probe_gain>=0.10 && cross_surface_wins>=2"
+        },
+        {
+          "path": "/client/*",
+          "proof": "owner_approval"
+        }
+      ],
+      "kernel_locked": true
+    }
+  },
+  "client": {
+    "id": "",
+    "name": "",
+    "tone": [],
+    "non_negotiables": []
+  },
+  "principles": {
+    "invariants": [
+      "p0_no_confab",
+      "p1_obey_constraints"
+    ],
+    "candidates": [
+      "p2_max_partition",
+      "p3_delay_double_letters",
+      "p4_position_frequency"
+    ],
+    "weights": {
+      "p1_obey_constraints": 1.0,
+      "p2_max_partition": 0.5,
+      "p3_delay_double_letters": 0.5,
+      "p4_position_frequency": 0.5
+    }
+  },
+  "transfer": {
+    "validated": [],
+    "queue": []
+  },
+  "project": {
+    "id": "wordle",
+    "goal": "Solve today's Wordle in ≤ 4 guesses.",
+    "deliverable": "Legal 5-letter guesses until solved.",
+    "success_checks": [
+      "valid_word",
+      "respects_constraints",
+      "novel_guess"
+    ]
+  },
+  "state": {
+    "svec": {
+      "tool": "",
+      "surface": "",
+      "features": {}
+    },
+    "grs": {
+      "score": 0.0,
+      "prereqs": [],
+      "blockers": []
+    },
+    "plan": [],
+    "next_action": "",
+    "open_questions": [],
+    "unknowns": [],
+    "why_trace": [],
+    "hypotheses": [],
+    "experiments": [],
+    "history": [],
+    "constraints": {
+      "greens": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "yellows_not_here": [
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "must_include": [],
+      "must_exclude": [],
+      "min_counts": {}
+    }
+  },
+  "gaps": {
+    "weak_spots": [],
+    "next_lesson": null
+  },
+  "connections": {
+    "analogy_queue": [],
+    "confirmed_links": [],
+    "motifs": [
+      "motif-max-partition",
+      "motif-hard-constraint-first"
+    ]
+  },
+  "logs": {
+    "decisions": [],
+    "metrics": {
+      "activation_f1": 0.0,
+      "transfer_at_1": 0.0,
+      "regressions_7d": 0
+    }
+  },
+  "temp": {
+    "scratch": "",
+    "expires": ""
+  }
+}

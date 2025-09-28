@@ -16,3 +16,4 @@ history.jsonl
 # OS cruft
 .DS_Store
 Thumbs.db
+sessions/

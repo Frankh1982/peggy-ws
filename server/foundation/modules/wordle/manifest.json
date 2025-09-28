@@ -1,0 +1,19 @@
+{
+  "id": "mod-wordle",
+  "detectors": {
+    "project.id": "wordle"
+  },
+  "success_checks": [
+    "valid_word",
+    "respects_constraints",
+    "novel_guess"
+  ],
+  "resources": {
+    "dictionary": "./dictionary.txt"
+  },
+  "operators": [
+    "p2_max_partition",
+    "p3_delay_double_letters",
+    "p4_position_frequency"
+  ]
+}

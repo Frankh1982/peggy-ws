@@ -1,0 +1,78 @@
+{
+  "buckets": {
+    "Ls_U0_C0_He_Mgpt-4o-mini": {
+      "arms": {
+        "BASELINE": {
+          "n": 1,
+          "avg": 1.0
+        },
+        "STRUCTURE_BULLETS": {
+          "n": 1,
+          "avg": 1.0
+        },
+        "ASK_CLARIFYING": {
+          "n": 1,
+          "avg": 1.0
+        }
+      },
+      "rr": 2,
+      "n_total": 3
+    },
+    "Lm_U0_C0_He_Mgpt-4o-mini": {
+      "arms": {
+        "BASELINE": {
+          "n": 0,
+          "avg": 0.0
+        },
+        "STRUCTURE_BULLETS": {
+          "n": 0,
+          "avg": 0.0
+        },
+        "ASK_CLARIFYING": {
+          "n": 1,
+          "avg": 1.0
+        }
+      },
+      "rr": 1,
+      "n_total": 1
+    },
+    "Ls_U0_C0_Hm_Mgpt-4o-mini": {
+      "arms": {
+        "BASELINE": {
+          "n": 0,
+          "avg": 0.0
+        },
+        "STRUCTURE_BULLETS": {
+          "n": 0,
+          "avg": 0.0
+        },
+        "ASK_CLARIFYING": {
+          "n": 0,
+          "avg": 0.0
+        }
+      },
+      "rr": 0,
+      "n_total": 0
+    },
+    "Lm_U0_C0_Hm_Mgpt-4o-mini": {
+      "arms": {
+        "BASELINE": {
+          "n": 0,
+          "avg": 0.0
+        },
+        "STRUCTURE_BULLETS": {
+          "n": 0,
+          "avg": 0.0
+        },
+        "ASK_CLARIFYING": {
+          "n": 0,
+          "avg": 0.0
+        }
+      },
+      "rr": 1,
+      "n_total": 0
+    }
+  },
+  "epsilon_base": 0.2,
+  "warm_k": 3
+}

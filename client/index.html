@@ -3,24 +3,39 @@
 <title>peggy-ws client</title>
 <style>
   body { font-family: system-ui, sans-serif; margin: 16px; }
-  #log { white-space: pre-wrap; border: 1px solid #ccc; padding: 8px; height: 50vh; overflow: auto; }
+  #log { white-space: pre-wrap; border: 1px solid #ccc; padding: 8px; height: 48vh; overflow: auto; }
   #row { display: flex; gap: 8px; margin-top: 8px; }
   input, button { font-size: 16px; }
   #msg { flex: 1; padding: 8px; }
   .inputs { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px; }
   label { font-size: 14px; }
+  .meta { margin: 8px 0; font-size: 14px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .meta strong { font-weight: 600; }
 </style>
 
 <h3>peggy-ws client</h3>
 
 <div class="inputs">
   <label>WS Host:
-    <input id="host" size="42" value="ws://localhost:8000/ws">
+    <input id="host" size="44" value="ws://localhost:8000/ws">
   </label>
   <label>Token:
-    <input id="token" size="24" placeholder="YOUR_TOKEN">
+    <input id="token" size="16" placeholder="YOUR_TOKEN">
   </label>
+  <label>Session:
+    <input id="session" size="12" placeholder="auto">
+  </label>
+  <label>
+    <input type="checkbox" id="remember"> remember token
+  </label>
+  <button id="newSession">New</button>
   <button id="connect">Connect</button>
+</div>
+
+<div class="meta">
+  Principle: <strong id="principle">—</strong>
+  <button id="up">👍</button>
+  <button id="down">👎</button>
 </div>
 
 <div id="log"></div>
@@ -31,81 +46,112 @@
 </div>
 
 <script>
-  let ws, ready=false, buf="";
+  let ws, ready=false, buf="", currentExp="";
 
-  // Auto-fill WS host for pages served from /app (works with Cloudflare tunnel too)
+  function randSession(){ return Math.random().toString(36).slice(2,10); }
+
+  // Auto-fill host; restore token + session
   window.addEventListener('DOMContentLoaded', () => {
     const inferred = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws';
     const hostInput = document.getElementById('host');
-    if (!hostInput.value || hostInput.value.includes('localhost')) {
-      hostInput.value = inferred;
-    }
+    if (!hostInput.value || hostInput.value.includes('localhost')) hostInput.value = inferred;
+
+    const savedTok = localStorage.getItem('peggy_token');
+    if (savedTok) { document.getElementById('token').value = savedTok; document.getElementById('remember').checked = true; }
+
+    const savedSess = localStorage.getItem('peggy_session');
+    document.getElementById('session').value = savedSess || (function(){ const s = randSession(); localStorage.setItem('peggy_session', s); return s; })();
   });
 
-  function logLine(msg){
-    const el=document.getElementById('log');
-    el.textContent += msg + "\n";
-    el.scrollTop = el.scrollHeight;
-  }
-
+  function logLine(msg){ const el=document.getElementById('log'); el.textContent += msg + "\n"; el.scrollTop = el.scrollHeight; }
   function normalizeHost(host){
-    // If someone pastes an http(s) URL, translate to ws(s)
     if (host.startsWith('http://'))  return 'ws://'  + host.slice(7);
     if (host.startsWith('https://')) return 'wss://' + host.slice(8);
     return host;
   }
+  function setPrinciple(p){ document.getElementById('principle').textContent = p || "—"; }
 
   function connect(){
     let host  = document.getElementById('host').value.trim();
     const token = document.getElementById('token').value.trim();
+    if (document.getElementById('remember').checked && token) localStorage.setItem('peggy_token', token);
+    else localStorage.removeItem('peggy_token');
+
     host = normalizeHost(host);
     if(!host){ alert("Enter WS host"); return; }
     const url = token ? `${host}?token=${encodeURIComponent(token)}` : host;
 
-    // Avoid dup sockets
     if (ws && (ws.readyState===WebSocket.OPEN || ws.readyState===WebSocket.CONNECTING)) {
       logLine("already connected/connecting");
       return;
     }
 
-    try { ws = new WebSocket(url); }
-    catch (e){ logLine("bad URL: " + e); return; }
+    try { ws = new WebSocket(url); } catch (e){ logLine("bad URL: " + e); return; }
 
     ws.onopen   = ()=>{ ready=true; logLine("connected to " + url); };
     ws.onclose  = (e)=>{ ready=false; logLine(`closed: code=${e.code} reason="${e.reason}" clean=${e.wasClean}`); };
-    ws.onerror  = ()=>{ logLine("onerror fired (details usually in 'closed' line above)"); };
+    ws.onerror  = ()=>{ logLine("onerror fired"); };
 
     ws.onmessage= (m)=>{
-      const text = m.data;
-      if(text === "ready"){ logLine("server: ready"); return; }
-      if(text.trim() === "--- end ---"){
-        logLine("server: " + buf.trim());
-        buf="";
-      } else {
-        buf += text; // accumulate streamed chunks
+      let text = m.data;
+
+      // Handle meta/ack/error possibly glued to first chunk
+      if (text.startsWith("{")) {
+        const end = text.indexOf("}");
+        if (end !== -1) {
+          const maybe = text.slice(0, end+1);
+          try {
+            const obj = JSON.parse(maybe);
+            if (obj && obj.type === "meta") { currentExp = obj.exp_id || ""; setPrinciple(obj.principle || "—"); text = text.slice(end+1); }
+            else if (obj && obj.type === "ack") { logLine(`feedback ack for ${obj.exp_id||""}`); return; }
+            else if (obj && obj.type === "error") { logLine("server error: " + (obj.error||"")); return; }
+          } catch(_) {}
+        }
       }
+      try {
+        const obj = JSON.parse(text);
+        if (obj && obj.type === "ack") { logLine(`feedback ack for ${obj.exp_id||""}`); return; }
+        if (obj && obj.type === "error"){ logLine("server error: " + (obj.error||"")); return; }
+      } catch(_) {}
+
+      if (text === "ready"){ logLine("server: ready"); return; }
+      if (text.trim() === "--- end ---"){ logLine("server: " + buf.trim()); buf=""; return; }
+      buf += text;
     };
   }
 
   function sendNow(){
     const t = document.getElementById('msg').value;
+    const session = (document.getElementById('session').value || "").trim();
     if(!t) return;
     if(!ready) connect();
+    const payload = {type:"message", text:t, session_id: session || localStorage.getItem('peggy_session') || randSession()};
+    if (!session) { const s = payload.session_id; localStorage.setItem('peggy_session', s); document.getElementById('session').value = s; }
     const trySend = ()=>{
       if(ws && ws.readyState===WebSocket.OPEN){
-        ws.send(t);
+        ws.send(JSON.stringify(payload));
         logLine("client: " + t);
         document.getElementById('msg').value="";
-      } else {
-        setTimeout(trySend, 100);
-      }
+      } else { setTimeout(trySend, 100); }
     };
     trySend();
   }
 
+  function sendFeedback(val){
+    if(!currentExp){ logLine("no reply to rate yet"); return; }
+    if(!ready){ logLine("not connected"); return; }
+    ws.send(JSON.stringify({type:"feedback", exp_id: currentExp, value: val}));
+  }
+
   document.getElementById('connect').onclick = connect;
   document.getElementById('send').onclick = sendNow;
-  document.getElementById('msg').addEventListener('keydown', (e)=>{
-    if(e.key==="Enter"){ e.preventDefault(); sendNow(); }
-  });
+  document.getElementById('msg').addEventListener('keydown', (e)=>{ if(e.key==="Enter"){ e.preventDefault(); sendNow(); }});
+  document.getElementById('up').onclick   = ()=>sendFeedback(+1);
+  document.getElementById('down').onclick = ()=>sendFeedback(-1);
+  document.getElementById('newSession').onclick = ()=>{
+    const s = randSession();
+    localStorage.setItem('peggy_session', s);
+    document.getElementById('session').value = s;
+    logLine("new session: " + s);
+  };
 </script>

@@ -2,3 +2,16 @@ Start up Peggy ws
 
 cd peggy-ws
  . .\.venv\Scripts\Activate.ps1
+
+ .\up.ps1 -UseTunnel
+
+locally
+cd C:\Users\Owner\peggy-ws
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\up.ps1
+
+
+phone
+cd C:\Users\Owner\peggy-ws
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\up.ps1 -UseTunnel
