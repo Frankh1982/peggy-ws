@@ -1,0 +1,4 @@
+Start up Peggy ws
+
+cd peggy-ws
+ . .\.venv\Scripts\Activate.ps1

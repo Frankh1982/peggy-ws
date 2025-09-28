@@ -1,0 +1,111 @@
+<!doctype html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>peggy-ws client</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 16px; }
+  #log { white-space: pre-wrap; border: 1px solid #ccc; padding: 8px; height: 50vh; overflow: auto; }
+  #row { display: flex; gap: 8px; margin-top: 8px; }
+  input, button { font-size: 16px; }
+  #msg { flex: 1; padding: 8px; }
+  .inputs { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px; }
+  label { font-size: 14px; }
+</style>
+
+<h3>peggy-ws client</h3>
+
+<div class="inputs">
+  <label>WS Host:
+    <input id="host" size="42" value="ws://localhost:8000/ws">
+  </label>
+  <label>Token:
+    <input id="token" size="24" placeholder="YOUR_TOKEN">
+  </label>
+  <button id="connect">Connect</button>
+</div>
+
+<div id="log"></div>
+
+<div id="row">
+  <input id="msg" placeholder="Type message...">
+  <button id="send">Send</button>
+</div>
+
+<script>
+  let ws, ready=false, buf="";
+
+  // Auto-fill WS host for pages served from /app (works with Cloudflare tunnel too)
+  window.addEventListener('DOMContentLoaded', () => {
+    const inferred = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws';
+    const hostInput = document.getElementById('host');
+    if (!hostInput.value || hostInput.value.includes('localhost')) {
+      hostInput.value = inferred;
+    }
+  });
+
+  function logLine(msg){
+    const el=document.getElementById('log');
+    el.textContent += msg + "\n";
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function normalizeHost(host){
+    // If someone pastes an http(s) URL, translate to ws(s)
+    if (host.startsWith('http://'))  return 'ws://'  + host.slice(7);
+    if (host.startsWith('https://')) return 'wss://' + host.slice(8);
+    return host;
+  }
+
+  function connect(){
+    let host  = document.getElementById('host').value.trim();
+    const token = document.getElementById('token').value.trim();
+    host = normalizeHost(host);
+    if(!host){ alert("Enter WS host"); return; }
+    const url = token ? `${host}?token=${encodeURIComponent(token)}` : host;
+
+    // Avoid dup sockets
+    if (ws && (ws.readyState===WebSocket.OPEN || ws.readyState===WebSocket.CONNECTING)) {
+      logLine("already connected/connecting");
+      return;
+    }
+
+    try { ws = new WebSocket(url); }
+    catch (e){ logLine("bad URL: " + e); return; }
+
+    ws.onopen   = ()=>{ ready=true; logLine("connected to " + url); };
+    ws.onclose  = (e)=>{ ready=false; logLine(`closed: code=${e.code} reason="${e.reason}" clean=${e.wasClean}`); };
+    ws.onerror  = ()=>{ logLine("onerror fired (details usually in 'closed' line above)"); };
+
+    ws.onmessage= (m)=>{
+      const text = m.data;
+      if(text === "ready"){ logLine("server: ready"); return; }
+      if(text.trim() === "--- end ---"){
+        logLine("server: " + buf.trim());
+        buf="";
+      } else {
+        buf += text; // accumulate streamed chunks
+      }
+    };
+  }
+
+  function sendNow(){
+    const t = document.getElementById('msg').value;
+    if(!t) return;
+    if(!ready) connect();
+    const trySend = ()=>{
+      if(ws && ws.readyState===WebSocket.OPEN){
+        ws.send(t);
+        logLine("client: " + t);
+        document.getElementById('msg').value="";
+      } else {
+        setTimeout(trySend, 100);
+      }
+    };
+    trySend();
+  }
+
+  document.getElementById('connect').onclick = connect;
+  document.getElementById('send').onclick = sendNow;
+  document.getElementById('msg').addEventListener('keydown', (e)=>{
+    if(e.key==="Enter"){ e.preventDefault(); sendNow(); }
+  });
+</script>
