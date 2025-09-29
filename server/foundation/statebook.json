@@ -3,7 +3,7 @@
   "meta": {
     "agent": "Peggy",
     "owner": "Frank",
-    "updated": "2025-09-28T14:49:34.936008+00:00"
+    "updated": "2025-09-29T14:48:10.780430+00:00"
   },
   "kernel": {
     "mission": "Deliver high-integrity work; learn every day; prefer provable improvements.",
@@ -124,18 +124,27 @@
     },
     "plan": [],
     "next_action": "",
-    "open_questions": [],
+    "open_questions": [
+      "What are the possible 5-letter words containing A, C, and E?",
+      "What are the possible 5-letter words containing H, A, and E?",
+      "What are the possible 5-letter words containing A, E, and another letter excluding D, I, U, P, C?",
+      "What are the possible 5-letter words containing E in the first position and A in a different position?"
+    ],
     "unknowns": [],
     "why_trace": [],
     "hypotheses": [],
     "experiments": [],
-    "history": [],
+    "history": [
+      {
+        "guess": "green"
+      }
+    ],
     "constraints": {
       "greens": [
         "",
         "",
-        "",
-        "",
+        "e",
+        "e",
         ""
       ],
       "yellows_not_here": [
@@ -146,9 +155,19 @@
         []
       ],
       "must_include": [],
-      "must_exclude": [],
-      "min_counts": {}
-    }
+      "must_exclude": [
+        "t",
+        "s",
+        "d",
+        "i",
+        "u",
+        "c",
+        "p"
+      ],
+      "min_counts": {},
+      "max_counts": {}
+    },
+    "_last_guess": "green"
   },
   "gaps": {
     "weak_spots": [],

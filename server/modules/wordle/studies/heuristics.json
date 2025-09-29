@@ -1,0 +1,24 @@
+{
+  "weights": {
+    "info_gain": 0.8,
+    "heuristics": 0.2
+  },
+  "rules": [
+    {
+      "id": "avoid_duplicates_early",
+      "weight": 1.0
+    },
+    {
+      "id": "prefer_common_letters",
+      "weight": 1.0
+    },
+    {
+      "id": "prefer_two_vowels_early",
+      "weight": 0.6
+    }
+  ],
+  "meta": {
+    "generated": "2025-09-29T14:46:01.322557+00:00",
+    "model": "gpt-4o-mini"
+  }
+}
