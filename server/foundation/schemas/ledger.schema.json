@@ -1,0 +1,15 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "type":"object",
+  "required":["version","skills","xlinks","open_questions","proven_heuristics"],
+  "properties":{
+    "version":{"type":"integer","minimum":1},
+    "skills":{"type":"object","additionalProperties":{"type":"integer","minimum":0}},
+    "xlinks":{"type":"array","items":{"type":"object","required":["a","b","why"],
+      "properties":{"a":{"type":"string"},"b":{"type":"string"},"why":{"type":"string"}}}},
+    "open_questions":{"type":"array","items":{"type":"string"}},
+    "proven_heuristics":{"type":"array","items":{"type":"object","required":["id","evidence"],
+      "properties":{"id":{"type":"string"},"evidence":{"type":"string"}}}}
+  },
+  "additionalProperties":false
+}

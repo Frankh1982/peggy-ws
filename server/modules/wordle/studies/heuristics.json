@@ -1,24 +1,23 @@
-{
-  "weights": {
-    "info_gain": 0.8,
-    "heuristics": 0.2
-  },
-  "rules": [
-    {
-      "id": "avoid_duplicates_early",
-      "weight": 1.0
-    },
-    {
-      "id": "prefer_common_letters",
-      "weight": 1.0
-    },
-    {
-      "id": "prefer_two_vowels_early",
-      "weight": 0.6
-    }
-  ],
-  "meta": {
-    "generated": "2025-09-29T14:46:01.322557+00:00",
-    "model": "gpt-4o-mini"
-  }
+﻿{
+    "topic":  "studies",
+    "rules":  [
+                  {
+                      "id":  "avoid_duplicates_early",
+                      "rule":  "Prefer guesses without repeated letters early.",
+                      "why":  "Maximizes information gained across positions.",
+                      "test":  "Given two candidates, pick the one with all-unique letters."
+                  },
+                  {
+                      "id":  "prefer_common_letters",
+                      "rule":  "Prioritize high-frequency letters in early guesses.",
+                      "why":  "Increases chance to hit constraints quickly.",
+                      "test":  "Rank candidates by corpus letter frequency; choose higher."
+                  },
+                  {
+                      "id":  "prefer_two_vowels_early",
+                      "rule":  "Use at least two distinct vowels in the first 1–2 guesses.",
+                      "why":  "Rapidly constrains vowel placement and identity.",
+                      "test":  "Reject candidates with \u003c2 distinct vowels for guess #1."
+                  }
+              ]
 }

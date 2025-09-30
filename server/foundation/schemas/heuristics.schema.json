@@ -1,0 +1,13 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "type":"object",
+  "required":["topic","rules"],
+  "properties":{
+    "topic":{"type":"string"},
+    "rules":{"type":"array","items":{
+      "type":"object","required":["id","rule","why","test"],
+      "properties":{"id":{"type":"string"},"rule":{"type":"string"},
+        "why":{"type":"string"},"test":{"type":"string"}}
+    }}},
+  "additionalProperties":false
+}

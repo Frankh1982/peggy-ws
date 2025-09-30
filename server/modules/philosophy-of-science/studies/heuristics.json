@@ -1,0 +1,12 @@
+{
+  "topic": "philosophy-of-science",
+  "rules": [
+    {
+      "id": "explore_then_exploit",
+      "rule": "Generate options, test quickly, prune aggressively.",
+      "why": "Balances discovery with convergence.",
+      "test": "Given 5 options, pick 1 with evidence in <=2 cycles."
+    }
+  ]
+}
+

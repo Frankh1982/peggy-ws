@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "skills": {
+    "chess": 2,
+    "philosophy-of-science": 2
+  },
+  "xlinks": [
+    {
+      "a": "chess",
+      "b": "philosophy-of-science",
+      "why": "shared heuristic(s): explore_then_exploit"
+    }
+  ],
+  "open_questions": [
+    "What fast probe would validate first rule for 'chess'?",
+    "What fast probe would validate first rule for 'philosophy-of-science'?",
+    "What fast probe would validate first rule for 'chess'?",
+    "What fast probe would validate first rule for 'philosophy-of-science'?"
+  ],
+  "proven_heuristics": []
+}

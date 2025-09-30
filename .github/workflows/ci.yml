@@ -1,0 +1,29 @@
+﻿name: ci
+on: [push, pull_request]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install jsonschema
+      - name: JSON well-formed
+        run: |
+          python - << "PY"
+import json, pathlib, sys
+bad = False
+for p in pathlib.Path("server").rglob("*.json"):
+    try:
+        json.loads(open(p, "r", encoding="utf-8-sig").read())
+    except Exception as e:
+        print("Bad JSON:", p, e); bad = True
+if bad: sys.exit(1)
+print("OK: all JSON parse")
+PY
+      - name: Schema validate
+        run: python scripts/validate_json.py
